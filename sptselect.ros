@@ -1,0 +1,41 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(progn ;;init forms
+  (ros:ensure-asdf)
+  #+quicklisp(ql:quickload '() :silent t)
+  )
+
+(defpackage :ros.script.sptselect.3906037928
+  (:use :cl))
+(in-package :ros.script.sptselect.3906037928)
+
+(defvar *wofi* "wofi -show -dmen -H 0")
+
+(defun selection ()
+  "Get user input on song"
+  (uiop:run-program *wofi*
+                    :output :string))
+
+(defun what-to-play ()
+  (string-trim '(#\Newline) (uiop:run-program (uiop:strcat
+                                               "echo 'track
+artist
+playlist
+album
+show' "
+                                               "| wofi -dmen")
+                                              :output :string)))
+
+(defun main ()
+  (let ((selection (selection))
+        (what-to-play (what-to-play)))
+    (uiop:run-program (uiop:strcat
+                       "spt play --name '"
+                       selection
+                       "' --"
+                       what-to-play
+                       ))))
+;;; vim: set ft=lisp lisp:

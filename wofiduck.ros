@@ -1,0 +1,36 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(progn ;;init forms
+  (ros:ensure-asdf)
+  #+quicklisp(ql:quickload '() :silent t)
+  )
+
+(defpackage :ros.script.wofiduck.3903746710
+  (:use :cl))
+(in-package :ros.script.wofiduck.3903746710)
+
+(defvar *wofi* "wofi -show -dmenu -H 0")
+
+(defun ddg-search ()
+  "Search in browser"
+  (uiop:run-program *wofi*
+                    :output :string))
+
+(defun open-default-browser (url)
+  (cond
+    ((uiop:os-unix-p)
+     (uiop:run-program "xdg-open" url))
+    ((uiop:os-darwin-p)
+     (uiop:run-program "open" url))
+    ((uiop:os-windows-p)
+     (uiop:run-program "start" url))
+    (t (error "Unsupported operating system"))))
+
+(defun main ()
+  (let ((query (ddg-search)))
+    (open-default-browser (format nil "https://duckduckgo.com/?q=~a" query))))
+
+;;; vim: set ft=lisp lisp:

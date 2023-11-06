@@ -1,0 +1,39 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(progn ;;init forms
+  (ros:ensure-asdf)
+  #+quicklisp(ql:quickload '() :silent t)
+  )
+
+(defpackage :ros.script.sorter.3908285114
+  (:use :cl))
+(in-package :ros.script.sorter.3908285114)
+
+
+(defun move-file (source-path destination-path)
+  "Move a file from source-path to destination-path."
+  (uiop:rename-file source-path destination-path :if-exists :supersede))
+
+(defun sort-downloads-folder ()
+  "Sort files in the Downloads folder into appropriate directories."
+  (let* ((downloads-path (uiop:getenv "HOME") "Downloads/")
+         (image-extensions '("jpg" "jpeg" "png" "gif" "bmp"))
+         (music-extensions '("mp3" "wav" "flac" "ogg"))
+         (video-extensions '("mp4" "avi" "mkv" "mov"))
+         (all-files (uiop:directory-files downloads-path :full t)))
+    (dolist (file all-files)
+      (let* ((file-type (uiop:file-type file))
+             (extension (uiop:file-type-name file-type)))
+        (cond
+          ((member extension image-extensions)
+           (move-file file (format nil "~/Pictures/~a" (uiop:file-namestring file))))
+          ((member extension music-extensions)
+           (move-file file (format nil "~/Music/~a" (uiop:file-namestring file))))
+          ((member extension video-extensions)
+           (move-file file (format nil "~/Videos/~a" (uiop:file-namestring file))))
+          (t
+           (uiop:run-program (format nil "notify-send ~a" (format nil "Skipping file: ~a~%" file)))))))))
+;;; vim: set ft=lisp lisp:

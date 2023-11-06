@@ -1,0 +1,43 @@
+#+title: Scripts
+#+author: Damian Suarez
+
+** Sorter.ros
+runs as a daemon to organize ~/Downloads dir
+
+** SPTselect
+runs wofi to play music on [[https://github.com/Rigellute/spotify-tui][spotify-tui]]
+
+** SPTwaybar
+uses playerctl to check for currently playing music
+
+example module:
+#+begin_src config
+// waybar-spotify
+"custom/spotify": {
+    "exec": "$HOME/.config/waybar/sptwaybar",
+    "interval": 1,
+    "format": "{}",
+    "tooltip": true,
+    "max-length": 40,
+    "on-click": "playerctl play-pause",
+    "on-click-middle": "playerctl previous",
+    "on-click-right": "playerctl next",
+    "on-scroll-up": "playerctl position 05+",
+    "on-scroll-down": "playerctl position 05-",
+    "smooth-scrolling-threshold": 1,
+},
+#+end_src
+
+** WOFIduck
+Searches in the users default browser a prompt in DuckDuckGo
+
+* Usage
+using roswell for a binary:
+#+begin_src bash
+ros build <script>.ros
+#+end_src
+
+or running it directly
+#+begin_src bash
+./<script>.ros
+#+end_src
