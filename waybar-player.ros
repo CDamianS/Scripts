@@ -1,0 +1,35 @@
+#!/bin/sh
+#|-*- mode:lisp -*-|#
+#|
+exec ros -Q -- $0 "$@"
+|#
+(progn ;;init forms
+  (ros:ensure-asdf)
+  #+quicklisp(ql:quickload '() :silent t))
+
+(defpackage :waybar-player
+  (:use :cl
+   :uiop))
+(in-package :waybar-player)
+
+(defun playerctl-command (command)
+  (string-trim '(#\Newline) (run-program (strcat "playerctl " command)
+                                         :output :string
+                                         :ignore-error-status t)))
+
+(defun is-paused-p ()
+  (let ((status (playerctl-command "status")))
+    (if (string= status "Playing")
+        ""
+        "")))
+
+(defun main ()
+  (let ((player-status (playerctl-command "status")))
+    (if (or (string= player-status "Playing")
+            (string= player-status "Paused"))
+        (format t "~A ~A - ~A~%"
+                (is-paused-p)
+                (playerctl-command "metadata artist")
+                (playerctl-command "metadata title"))
+        (format t "No Media!~%"))))
+;;; vim: set ft=lisp lisp:
